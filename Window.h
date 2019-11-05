@@ -23,4 +23,6 @@ public:
 
   void serviceStudent(); // decreases the student's required time. if that time is 0, remove the student and add stats
 
+  Student removeStudent(); // empties window and returns the student inside
+
 };

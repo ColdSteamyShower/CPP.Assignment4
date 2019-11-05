@@ -22,7 +22,7 @@ Window::~Window()
 // Class Behavior
 ////////////////////
 
-Window::void serviceStudent()
+void Window::serviceStudent()
 {
   if (student->timeRequired == 0)
     return;
@@ -30,4 +30,11 @@ Window::void serviceStudent()
     ++timeIdle;
   else
     student->tick();
+}
+
+Student Window::removeStudent()
+{
+  Student *temp = student;
+  student = NULL;
+  return temp;
 }
