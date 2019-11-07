@@ -34,11 +34,17 @@ Student::Student(int activate, int required)
 void Student::tick()
 {
   if (!activated)
+  {
     return;
+  }
   else if (atWindow)
+  {
     --timeRequired;
+  }
   else
+  {
     ++timeIdle;
+  }
 }
 
 void Student::print()

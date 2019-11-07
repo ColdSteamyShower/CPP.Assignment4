@@ -28,7 +28,6 @@ Window::~Window()
 void Window::enterStudent(Student *sPtr)
 {
   if (student != NULL){
-    cout << "A window is already occupied by a student!" << endl;
   }
   student = sPtr;
   student->atWindow = true;
@@ -36,10 +35,15 @@ void Window::enterStudent(Student *sPtr)
 
 void Window::checkStudent()
 {
-  if (student->timeRequired == 0)
-    removeStudent();
+
   if (student == NULL)
+  {
     ++timeIdle;
+  }
+  else if (student->timeRequired == 0)
+  {
+    removeStudent();
+  }
 }
 
 void Window::removeStudent()

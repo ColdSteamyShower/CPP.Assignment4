@@ -11,9 +11,15 @@ using namespace std;
 Simulation::Simulation(int windowCount, list<Student> studentList)
 {
   allStudents = studentList;
-  Window tempWindow;
   for(int i=0 ; i<windowCount ; ++i)
+  {
+    Window tempWindow;
     windows.push_front(tempWindow);
+  }
+
+
+  cout << "allStudents contains elements: " << allStudents.size() << endl;
+
 
   int currentTime=0;
 }
@@ -30,14 +36,30 @@ void Simulation::tick()
   // first, make moves:
   //    (out of line) -> (line)
   //    (line) -> (windows)
+  cout << "Moving students from nowhere to line... ";
   insertStudents();
+  cout << "Done!" << endl;
+  cout << "Moving students from line to window... " << endl;
   fillWindows();
+  cout << "Done!" << endl;
 
+
+  cout << "Ticking for all students..." << endl;
   // then, iterate time for all students in line
   for(list<Student>::iterator s=allStudents.begin(); s != allStudents.end(); ++s)
   {
     (*s).tick();
   }
+  cout << "Done!" << endl;
+
+  cout << "Checking all windows..." << endl;
+  for(list<Window>::iterator w=windows.begin(); w != windows.end(); ++w)
+  {
+    cout << "    Checking a window..." << endl;
+    (*w).checkStudent();
+    cout << "    Done!" << endl;
+  }
+  cout << "Done!" << endl;
 
   ++currentTime;
 }
@@ -51,11 +73,14 @@ void Simulation::tick()
 // check allStudents for any students ready to join the line
 void Simulation::insertStudents()
 {
+  cout << "Attempting to insert students" << endl;
   for(list<Student>::iterator s=allStudents.begin(); s != allStudents.end(); ++s){
     if ((*s).timeActivation == currentTime && !(*s).activated){
+      cout <<
       Student *studentPtr = &(*s);
       studentPtr->activated = true;
       studentLine.enqueue(studentPtr);
+
     }
   }
 }
@@ -64,13 +89,23 @@ void Simulation::insertStudents()
 // then, check if a student is done at a window to remove them and record their stats
 void Simulation::fillWindows()
 {
+  cout << "    Beginning to fill windows..." << endl;
   for(list<Window>::iterator w=windows.begin(); w != windows.end(); ++w){
-    if ((*w).student == NULL)
+    if (studentLine.empty())
+    {
+      cout << "    The queue is empty, no windows will be filled" << endl;
+      continue;
+    }
+    if ((*w).student == NULL){
+      cout << "    Passing pointer from queue to window...";
       (*w).enterStudent(studentLine.dequeue());
+      cout << "Done!" << endl;
+    }
     if ((*w).student->timeRequired == 0)
     {
       (*w).removeStudent();
     }
+    cout << "    Student added to window" << endl;
   }
 }
 
@@ -83,14 +118,14 @@ void Simulation::fillWindows()
 // determines if all students have been helped
 bool Simulation::simulationDone()
 {
-  int unfinished;
+  int unfinished = 0;
   bool finished = true;
   for(list<Student>::iterator s=allStudents.begin(); s != allStudents.end(); ++s){
     if ((*s).timeRequired != 0)
       finished = false;
       ++unfinished;
   }
-  cout << unfinished << "students are not done yet" << endl;
+  cout << unfinished << " students are not done yet" << endl;
   return finished;
 }
 
