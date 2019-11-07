@@ -76,7 +76,7 @@ void Simulation::insertStudents()
   cout << "Attempting to insert students" << endl;
   for(list<Student>::iterator s=allStudents.begin(); s != allStudents.end(); ++s){
     if ((*s).timeActivation == currentTime && !(*s).activated){
-      cout <<
+      cout << "";
       Student *studentPtr = &(*s);
       studentPtr->activated = true;
       studentLine.enqueue(studentPtr);
