@@ -4,24 +4,25 @@
 //      Handles logic and lists for entire simulation
 */
 
+#include <iostream>
 #include <list>
 #include "./LinkedQueue/LinkedQueue.h"
-#include "Student.h"
 #include "Window.h"
+
+using namespace std;
 
 class Simulation{
 private:
 
   // base lists
-  List<Student> studentsArriving;       // Students not yet in the line
-  List<Window> windows;                 // Windows
-  LinkedQueue<Student> studentLine;     // The line of students
+  list<Student> allStudents;       // Students in the simulation
+  list<Window> windows;                 // Windows
+  LinkedQueue<Student*> studentLine;     // The line of pointers to students
 
   // timing integer
   int currentTime;
 
-  // statistics
-  List<int> waitTimes;
+
 
 public:
 
@@ -29,22 +30,16 @@ public:
   // Initialization
   //
 
-  Simulation(int windows, List<Student> studentList); // constructor
+  Simulation(int windows, list<Student> studentList); // constructor
 
 
 
   //
-  // timing functions
+  // timing function
   //
 
   void tick();
   // iterates simulation by 1 time unit
-
-  void runWindows();
-  // iterates windows by 1 time unit
-
-  void runLine();
-  // increases idle time of all students in line
 
 
 
@@ -53,10 +48,21 @@ public:
   //
 
   void insertStudents();
-  // check studentsArriving for any students ready to join the line
+  // check allStudents for any students ready to join the line
 
   void fillWindows();
   // check for empty windows and insert the next students from the line into them
 
+
+
+  //
+  // statistics functions
+  //
+
+  bool simulationDone();
+  // determines if all students have been helped
+
+  void printStatistics();
+  // collect all statistics of the simulation and print information to console
 
 };

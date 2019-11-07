@@ -1,4 +1,6 @@
 #include "ListNode.h"
+#include "listEmptyException.h"
+
 
 template <typename T>
 class DoublyLinkedList{
@@ -13,9 +15,9 @@ public:
   ~DoublyLinkedList();
 
   void insertFront(T d);
-  T removeFront();
+  T removeFront() throw(listEmptyException);
   void insertBack(T d);
-  T removeBack();
+  T removeBack() throw(listEmptyException);
   T remove(T value);
   T deletePos(int pos);
 
@@ -50,13 +52,11 @@ void DoublyLinkedList<T>::insertFront(T d){
 }
 
 template <typename T>
-T DoublyLinkedList<T>::removeFront()
+T DoublyLinkedList<T>::removeFront() throw(listEmptyException)
 {
-
   if(size == 0){
-    return -1;
+    throw listEmptyException();
   }
-
   T data = front->data;
 
   if(size==1)
@@ -93,10 +93,10 @@ void DoublyLinkedList<T>::insertBack(T d)
 }
 
 template <typename T>
-T DoublyLinkedList<T>::removeBack()
+T DoublyLinkedList<T>::removeBack() throw(listEmptyException)
 {
   if(size == 0){
-    return -1;
+    throw listEmptyException();
   }
 
   T data = back->data;

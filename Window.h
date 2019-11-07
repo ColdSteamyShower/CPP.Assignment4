@@ -4,6 +4,7 @@
 //      Handles window logic
 */
 
+#include <iostream>
 #include "Student.h"
 
 class Window{
@@ -20,9 +21,15 @@ private:
 public:
 
   Window();
+  ~Window();
 
-  void serviceStudent(); // decreases the student's required time. if that time is 0, remove the student and add stats
+  void enterStudent(Student *sPtr);
+  // puts a student into the window unless it is already occupied
 
-  Student removeStudent(); // empties window and returns the student inside
+  void checkStudent();
+  // checks on the student inside. if that time is 0, remove the student and add stats. if there is no student, increase idle time
+
+  void removeStudent();
+  // empties the window and resets the student's activated and atWindow booleans
 
 };

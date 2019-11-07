@@ -1,4 +1,7 @@
+#include <iostream>
 #include "Student.h"
+
+using namespace std;
 
 //////////////////
 // Constructors
@@ -32,14 +35,16 @@ void Student::tick()
 {
   if (!activated)
     return;
-
-  if (atWindow)
+  else if (atWindow)
     --timeRequired;
   else
     ++timeIdle;
 }
 
-void Student::activate()
+void Student::print()
 {
-  activated = true;
+  cout << "------------------------------\n"
+       << "Activated at " << timeActivation << endl
+       << "Time Required: " << timeRequired << endl
+       << "Time Spent Idle: " << timeIdle << endl << endl;
 }

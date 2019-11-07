@@ -1,32 +1,31 @@
+#include <iostream>
+#include <list>
 #include "Simulation.h"
+
+using namespace std;
 
 /////////////////
 // Constructor
 /////////////////
 
-Simluation::Simulation(int wind, List<Student> studentList)
+Simulation::Simulation(int windowCount, list<Student> studentList)
 {
-  studentsArriving = studentList;
-
-  windows = new List<Window>();
-  for(int i=0 ; i<wind ; ++i)
-    windows.insert(new Window());
-
-  studentLine = new LinkedQueue<Student>();
+  allStudents = studentList;
+  Window tempWindow;
+  for(int i=0 ; i<windowCount ; ++i)
+    windows.push_front(tempWindow);
 
   int currentTime=0;
-
-  waitTimes = new List<int>();
 }
 
 
 
 //////////////////////
-// Timing Functions
+// Timing Function
 //////////////////////
 
 // iterates simulation by 1 time unit
-void Simluation::tick()
+void Simulation::tick()
 {
   // first, make moves:
   //    (out of line) -> (line)
@@ -34,38 +33,13 @@ void Simluation::tick()
   insertStudents();
   fillWindows();
 
-  // then, run windows and line functions
-  runWindows();
-  runLine();
+  // then, iterate time for all students in line
+  for(list<Student>::iterator s=allStudents.begin(); s != allStudents.end(); ++s)
+  {
+    (*s).tick();
+  }
 
   ++currentTime;
-}
-
-// iterates windows by 1 time unit
-void Simluation::runWindows()
-{
-  for(Window w : windows){
-    w.serviceStudent();
-    if (w.student->timeRequired == 0){
-      waitTimes.insert(w.removeStudent().timeIdle);
-    }
-  }
-}
-
-// increases idle time of all students in line
-void Simluation::runLine()
-{
-  LinkedQueue<Student> tempQ;
-  Student tempS;
-  while (!studentLine.empty()){
-    tempS = studentLine.dequeue();
-    tempS.timeIdle = (tempS.timeIdle+1);
-    tempQ.enqueue(tempS);
-  }
-
-  while(!tempQ.empty()){
-    studentLine.enqueue(tempQ.dequeue());
-  }
 }
 
 
@@ -74,22 +48,113 @@ void Simluation::runLine()
 // Migration Functions
 /////////////////////////
 
-// check studentsArriving for any students ready to join the line
-void Simluation::insertStudents()
+// check allStudents for any students ready to join the line
+void Simulation::insertStudents()
 {
-  for(Student s : studentsArriving){
-    if (s.timeActivation == currentTime){
-      studentLine.enqueue(s);
-      studentsArriving.remove(s);
+  for(list<Student>::iterator s=allStudents.begin(); s != allStudents.end(); ++s){
+    if ((*s).timeActivation == currentTime && !(*s).activated){
+      Student *studentPtr = &(*s);
+      studentPtr->activated = true;
+      studentLine.enqueue(studentPtr);
     }
   }
 }
 
 // check for empty windows and insert the next students from the line into them
-void Simluation::fillWindows()
+// then, check if a student is done at a window to remove them and record their stats
+void Simulation::fillWindows()
 {
-  for(Window w : windows){
-    if (w.student == NULL)
-      w.student = studentLine.dequeue();
+  for(list<Window>::iterator w=windows.begin(); w != windows.end(); ++w){
+    if ((*w).student == NULL)
+      (*w).enterStudent(studentLine.dequeue());
+    if ((*w).student->timeRequired == 0)
+    {
+      (*w).removeStudent();
+    }
   }
+}
+
+
+
+//////////////////////////
+// Statistics Functions
+//////////////////////////
+
+// determines if all students have been helped
+bool Simulation::simulationDone()
+{
+  int unfinished;
+  bool finished = true;
+  for(list<Student>::iterator s=allStudents.begin(); s != allStudents.end(); ++s){
+    if ((*s).timeRequired != 0)
+      finished = false;
+      ++unfinished;
+  }
+  cout << unfinished << "students are not done yet" << endl;
+  return finished;
+}
+
+
+// collect all statistics of the simulation and print information to console
+void Simulation::printStatistics()
+{
+// collect data from simulation
+  list<int> studentIdleTimes;
+  for(list<Student>::iterator s=allStudents.begin(); s != allStudents.end(); ++s)
+    studentIdleTimes.push_front((*s).timeIdle);
+
+  list<int> windowIdleTimes;
+  for(list<Window>::iterator w=windows.begin(); w != windows.end(); ++w)
+    windowIdleTimes.push_front((*w).timeIdle);
+
+// calculate values
+
+  //students
+  double sMean = 0;
+  int sIdleOverTen = 0;
+  int sLongestWait = 0;
+  for(list<int>::iterator i=studentIdleTimes.begin(); i != studentIdleTimes.end(); ++i)
+  {
+    sMean += *i;
+    if (*i > 10)
+      ++sIdleOverTen;
+    if (*i > sLongestWait)
+      sLongestWait = *i;
+  }
+  sMean = (sMean / (double)studentIdleTimes.size());
+
+  double median = 0;
+  studentIdleTimes.sort();
+  while (studentIdleTimes.size() > 2){
+    studentIdleTimes.pop_back();
+    studentIdleTimes.pop_front();
+  }
+  for(list<int>::iterator i=studentIdleTimes.begin(); i != studentIdleTimes.end(); ++i){
+    median+=*i;
+  }
+  median = (median / (double)studentIdleTimes.size());
+
+  //windows
+  double wMean = 0;
+  int wIdleOverFive = 0;
+  int wLongestWait = 0;
+  for(list<int>::iterator i=windowIdleTimes.begin(); i != windowIdleTimes.end(); ++i)
+  {
+    wMean += *i;
+    if (*i > 10)
+      ++wIdleOverFive;
+    if (*i > wLongestWait)
+      wLongestWait = *i;
+  }
+  wMean = (wMean / (double)windowIdleTimes.size());
+
+  cout << "          Simulation Statistics" << endl
+       << "-----------------------------------------" << endl
+       << "Mean Student Wait Time: " << sMean << " minutes" << endl
+       << "Median Student Wait Time: " << median << " minutes" << endl
+       << "Longest Student Wait Time: " << sLongestWait << " minutes" << endl
+       << "Number of Students who waited over 10 minutes: " << sIdleOverTen << endl
+       << "Mean Window Idle Time: " << wMean << " minutes" << endl
+       << "Longest Window Idle Time: " << wLongestWait << endl
+       << "Number of Windows that waited over 5 minutes: " << wIdleOverFive << endl;
 }

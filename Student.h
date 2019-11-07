@@ -6,7 +6,7 @@
 
 
 class Student{
-private:
+public:
 
   friend class Simulation; // share class with Simulation
   friend class Window;     // share class with Window
@@ -21,8 +21,9 @@ private:
   Student();
   Student(int time, int act); // takes ints to set timeRequired and timeActivation accordingly
 
-  // functions
-  void tick();     // ticks time for student
-  void activate(); // activates the student(puts them in line)
+  // timing function
+  void tick();     // if the student is in line, increase idle time. if the student is at a window, decrease required time
+
+  void print();    // prints out student info. Used for testing
 
 };

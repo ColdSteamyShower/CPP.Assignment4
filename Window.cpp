@@ -1,4 +1,7 @@
+#include <iostream>
 #include "Window.h"
+
+using namespace std;
 
 //////////////////
 // Constructors
@@ -22,19 +25,26 @@ Window::~Window()
 // Class Behavior
 ////////////////////
 
-void Window::serviceStudent()
+void Window::enterStudent(Student *sPtr)
 {
-  if (student->timeRequired == 0)
-    return;
-  if (student == NULL)
-    ++timeIdle;
-  else
-    student->tick();
+  if (student != NULL){
+    cout << "A window is already occupied by a student!" << endl;
+  }
+  student = sPtr;
+  student->atWindow = true;
 }
 
-Student Window::removeStudent()
+void Window::checkStudent()
 {
-  Student *temp = student;
+  if (student->timeRequired == 0)
+    removeStudent();
+  if (student == NULL)
+    ++timeIdle;
+}
+
+void Window::removeStudent()
+{
+  student->atWindow = false;
+  student->activated = false;
   student = NULL;
-  return temp;
 }
